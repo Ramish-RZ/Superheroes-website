@@ -1,0 +1,22 @@
+<%- include('layout', { title: 'Profile' }) %>
+
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-5">
+        <div class="card shadow-lg mt-5" style="background:#232a34; border:1px solid #00eaff44;">
+            <div class="card-body">
+                <h2 class="card-title text-center mb-4" style="color:#00eaff; text-shadow:0 0 12px #00eaff99, 0 0 32px #00eaff22; font-weight:700; letter-spacing:2px;">Profile</h2>
+                <ul class="list-group list-group-flush mb-4">
+                    <li class="list-group-item" style="background:#232a34; color:#e0e6ed; border:none;">
+                        <strong style="color:#00eaff;">Username:</strong> <%= user.username %>
+                    </li>
+                    <li class="list-group-item" style="background:#232a34; color:#e0e6ed; border:none;">
+                        <strong style="color:#00eaff;">Email:</strong> <%= user.email %>
+                    </li>
+                </ul>
+                <div class="d-grid">
+                    <a href="/auth/logout" class="btn btn-primary">Logout</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div> 
