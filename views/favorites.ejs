@@ -1,0 +1,65 @@
+<%- include('layout', { title: 'My Favorites' }) %>
+
+<div class="container">
+    <div class="row mb-4">
+        <div class="col">
+            <h1 style="color:#00eaff; text-shadow:0 0 12px #00eaff99, 0 0 32px #00eaff22; font-weight:700; letter-spacing:2px;">
+                <i class="bi bi-star-fill" style="color:#ffae00;"></i> My Favorites
+            </h1>
+        </div>
+    </div>
+
+    <% if (locals.message) { %>
+        <div class="row">
+            <div class="col">
+                <div class="alert alert-info text-center" style="background:#00eaff22; border:1px solid #00eaff44; color:#00eaff;">
+                    <%= message %>
+                </div>
+            </div>
+        </div>
+    <% } %>
+
+    <!-- Superhero Cards Grid -->
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
+        <% if (locals.superheroes && superheroes.length > 0) { %>
+            <% superheroes.forEach(hero => { %>
+                <div class="col">
+                    <div class="card h-100" style="background:#232a34; border:1px solid #00eaff33;">
+                        <img src="<%= hero.image %>" class="card-img-top" alt="<%= hero.name %>" style="border-bottom:1px solid #00eaff22;">
+                        <div class="card-body">
+                            <h5 class="card-title" style="color:#00eaff; font-weight:600; letter-spacing:1px; text-shadow:0 0 8px #00eaff55;">
+                                <%= hero.name %>
+                            </h5>
+                            <p class="card-text" style="color:#b0c4d4;">
+                                <% if (hero.biography && hero.biography.publisher) { %>
+                                    <span style="color:#00eaff;">Publisher:</span> <%= hero.biography.publisher %><br>
+                                <% } %>
+                                <% if (hero.powerstats) { %>
+                                    <span style="color:#00eaff;">Power:</span> <%= hero.powerstats.power || 'N/A' %>
+                                <% } %>
+                            </p>
+                            <div class="d-flex gap-2">
+                                <a href="/superhero/<%= hero.apiId %>" class="btn btn-primary flex-fill">View Details</a>
+                                <form action="/superhero/<%= hero.apiId %>/favorite" method="POST" style="margin:0;">
+                                    <button type="submit" class="btn btn-outline-danger" title="Remove from favorites">
+                                        <i class="bi bi-star-fill"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            <% }); %>
+        <% } %>
+    </div>
+
+    <% if (locals.superheroes && superheroes.length > 0) { %>
+        <div class="row mt-4">
+            <div class="col text-center">
+                <a href="/" class="btn btn-outline-primary">
+                    <i class="bi bi-arrow-left"></i> Back to All Superheroes
+                </a>
+            </div>
+        </div>
+    <% } %>
+</div> 

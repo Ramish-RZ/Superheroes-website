@@ -1,0 +1,71 @@
+<%- include('layout', { title: 'Home' }) %>
+
+<div class="row mb-4">
+    <div class="col">
+        <h1 style="color:#00eaff; text-shadow:0 0 12px #00eaff99, 0 0 32px #00eaff22; font-weight:700; letter-spacing:2px;">Superheroes</h1>
+        <!-- Search Bar -->
+        <form action="/superhero/search" method="GET" class="mb-4">
+            <div class="input-group">
+                <input type="text" name="q" class="form-control" placeholder="Search superheroes..." 
+                       value="<%= locals.query ? query : '' %>" style="background:#232a34; color:#e0e6ed; border:1px solid #00eaff44;">
+                <button class="btn btn-primary" type="submit">Search</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Superhero Cards Grid -->
+<div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
+    <% if (locals.superheroes && superheroes.length > 0) { %>
+        <% superheroes.forEach(hero => { %>
+            <div class="col">
+                <div class="card h-100">
+                    <img src="<%= hero.image %>" class="card-img-top" alt="<%= hero.name %>">
+                    <div class="card-body">
+                        <h5 class="card-title" style="color:#00eaff; font-weight:600; letter-spacing:1px; text-shadow:0 0 8px #00eaff55;">
+                            <%= hero.name %>
+                        </h5>
+                        <p class="card-text" style="color:#b0c4d4;">
+                            <% if (hero.biography && hero.biography.publisher) { %>
+                                <span style="color:#00eaff;">Publisher:</span> <%= hero.biography.publisher %><br>
+                            <% } %>
+                            <% if (hero.powerstats) { %>
+                                <span style="color:#00eaff;">Power:</span> <%= hero.powerstats.power || 'N/A' %>
+                            <% } %>
+                        </p>
+                        <a href="/superhero/<%= hero.apiId %>" class="btn btn-primary w-100 mt-2">View Details</a>
+                    </div>
+                </div>
+            </div>
+        <% }); %>
+    <% } else { %>
+        <div class="col-12">
+            <p class="text-center" style="color:#00eaff;">No superheroes found.</p>
+        </div>
+    <% } %>
+</div>
+
+<!-- Pagination -->
+<% if (locals.pagination) { %>
+    <nav class="mt-4">
+        <ul class="pagination justify-content-center">
+            <% if (pagination.currentPage > 1) { %>
+                <li class="page-item">
+                    <a class="page-link" href="?page=<%= pagination.currentPage - 1 %>" style="background:#232a34; color:#00eaff; border:1px solid #00eaff44;">Previous</a>
+                </li>
+            <% } %>
+            
+            <% for(let i = 1; i <= pagination.totalPages; i++) { %>
+                <li class="page-item <%= i === pagination.currentPage ? 'active' : '' %>">
+                    <a class="page-link" href="?page=<%= i %>" style="background:#232a34; color:#00eaff; border:1px solid #00eaff44;"><%= i %></a>
+                </li>
+            <% } %>
+            
+            <% if (pagination.currentPage < pagination.totalPages) { %>
+                <li class="page-item">
+                    <a class="page-link" href="?page=<%= pagination.currentPage + 1 %>" style="background:#232a34; color:#00eaff; border:1px solid #00eaff44;">Next</a>
+                </li>
+            <% } %>
+        </ul>
+    </nav>
+<% } %> 

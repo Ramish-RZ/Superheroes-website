@@ -1,0 +1,35 @@
+<%- include('../layout', { title: 'Register' }) %>
+
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-4">
+        <div class="card shadow-lg" style="background:#232a34; border:1px solid #00eaff44;">
+            <div class="card-body">
+                <h2 class="card-title text-center mb-4" style="color:#00eaff; text-shadow:0 0 12px #00eaff99, 0 0 32px #00eaff22; font-weight:700; letter-spacing:2px;">Register</h2>
+                <form action="/auth/register" method="POST">
+                    <div class="mb-3">
+                        <label for="username" class="form-label" style="color:#00eaff;">Username</label>
+                        <input type="text" class="form-control" id="username" name="username" required autocomplete="username">
+                    </div>
+                    <div class="mb-3">
+                        <label for="email" class="form-label" style="color:#00eaff;">Email</label>
+                        <input type="email" class="form-control" id="email" name="email" required autocomplete="email">
+                    </div>
+                    <div class="mb-3">
+                        <label for="password" class="form-label" style="color:#00eaff;">Password</label>
+                        <input type="password" class="form-control" id="password" name="password" required autocomplete="new-password">
+                    </div>
+                    <div class="mb-3">
+                        <label for="confirmPassword" class="form-label" style="color:#00eaff;">Confirm Password</label>
+                        <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" required autocomplete="new-password">
+                    </div>
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">Register</button>
+                    </div>
+                </form>
+                <div class="text-center mt-3">
+                    <p style="color:#b0c4d4;">Already have an account? <a href="/auth/login" style="color:#00eaff; text-decoration:underline;">Login here</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div> 

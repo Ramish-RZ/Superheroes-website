@@ -1,0 +1,157 @@
+<%- include('layout', { title: superhero.name }) %>
+
+<div class="container">
+    <!-- Success/Error Messages -->
+    <% if (locals.success) { %>
+        <div class="alert alert-success alert-dismissible fade show" role="alert" style="background:#00eaff22; border:1px solid #00eaff44; color:#00eaff;">
+            <%= success %>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    <% } %>
+    <% if (locals.error) { %>
+        <div class="alert alert-danger alert-dismissible fade show" role="alert" style="background:#ff007722; border:1px solid #ff007744; color:#ff0077;">
+            <%= error %>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    <% } %>
+
+    <div class="row">
+        <div class="col-md-4">
+            <img src="<%= superhero.image %>" class="img-fluid rounded shadow-lg" alt="<%= superhero.name %>" style="background:#181c24; border:2px solid #00eaff44;">
+        </div>
+        <div class="col-md-8">
+            <div class="d-flex justify-content-between align-items-center">
+                <h1 style="color:#00eaff; text-shadow:0 0 12px #00eaff99, 0 0 32px #00eaff22; font-weight:700; letter-spacing:2px;">
+                    <%= superhero.name %>
+                </h1>
+                <% if (user) { %>
+                    <form action="/superhero/<%= superhero.apiId %>/favorite" method="POST" style="margin:0;">
+                        <button type="submit" class="btn btn-outline-primary" style="font-size:1.2rem;">
+                            <i class="bi bi-star<%= user.favorites && user.favorites.includes(superhero.apiId) ? '-fill' : '' %>"></i> 
+                            <%= user.favorites && user.favorites.includes(superhero.apiId) ? 'Unfavorite' : 'Favorite' %>
+                        </button>
+                    </form>
+                <% } else { %>
+                    <a href="/auth/login" class="btn btn-outline-secondary" style="font-size:1.2rem;">
+                        <i class="bi bi-star"></i> Login to Favorite
+                    </a>
+                <% } %>
+            </div>
+            
+            <% if (superhero.biography) { %>
+                <div class="card mb-4" style="background:#232a34; border:1px solid #00eaff33;">
+                    <div class="card-header" style="background:#232a34; border-bottom:1px solid #00eaff22;">
+                        <h2 class="h5 mb-0" style="color:#00eaff;">Biography</h2>
+                    </div>
+                    <div class="card-body">
+                        <% if (superhero.biography.fullName) { %>
+                            <p><strong style="color:#00eaff;">Full Name:</strong> <%= superhero.biography.fullName %></p>
+                        <% } %>
+                        <% if (superhero.biography.alterEgos) { %>
+                            <p><strong style="color:#00eaff;">Alter Egos:</strong> <%= superhero.biography.alterEgos %></p>
+                        <% } %>
+                        <% if (superhero.biography.publisher) { %>
+                            <p><strong style="color:#00eaff;">Publisher:</strong> <%= superhero.biography.publisher %></p>
+                        <% } %>
+                        <% if (superhero.biography.alignment) { %>
+                            <p><strong style="color:#00eaff;">Alignment:</strong> <%= superhero.biography.alignment %></p>
+                        <% } %>
+                    </div>
+                </div>
+            <% } %>
+
+            <% if (superhero.powerstats) { %>
+                <div class="card mb-4" style="background:#232a34; border:1px solid #00eaff33;">
+                    <div class="card-header" style="background:#232a34; border-bottom:1px solid #00eaff22;">
+                        <h2 class="h5 mb-0" style="color:#00eaff;">Power Stats</h2>
+                    </div>
+                    <div class="card-body">
+                        <% const statColors = {
+                            intelligence: 'linear-gradient(90deg, #00eaff 0%, #0078ff 100%)',
+                            strength: 'linear-gradient(90deg, #ff00cc 0%, #333399 100%)',
+                            speed: 'linear-gradient(90deg, #00ff99 0%, #00eaff 100%)',
+                            durability: 'linear-gradient(90deg, #ffae00 0%, #ff00cc 100%)',
+                            power: 'linear-gradient(90deg, #ff0078 0%, #00eaff 100%)',
+                            combat: 'linear-gradient(90deg, #00eaff 0%, #ffae00 100%)'
+                        };
+                        Object.entries(superhero.powerstats).forEach(([stat, value]) => { %>
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <span style="color:#00eaff; font-weight:600; text-transform:capitalize; letter-spacing:1px;">
+                                        <%= stat %>
+                                    </span>
+                                    <span style="color:#e0e6ed; font-weight:600;">
+                                        <%= value %>
+                                    </span>
+                                </div>
+                                <div class="progress neon-progress">
+                                    <div class="progress-bar" role="progressbar" style="width: <%= value %>%; background: <%= statColors[stat] || '#00eaff' %>;" aria-valuenow="<%= value %>" aria-valuemin="0" aria-valuemax="100"></div>
+                                </div>
+                            </div>
+                        <% }); %>
+                    </div>
+                </div>
+            <% } %>
+
+            <% if (superhero.appearance) { %>
+                <div class="card mb-4" style="background:#232a34; border:1px solid #00eaff33;">
+                    <div class="card-header" style="background:#232a34; border-bottom:1px solid #00eaff22;">
+                        <h2 class="h5 mb-0" style="color:#00eaff;">Appearance</h2>
+                    </div>
+                    <div class="card-body">
+                        <% if (superhero.appearance.gender) { %>
+                            <p><strong style="color:#00eaff;">Gender:</strong> <%= superhero.appearance.gender %></p>
+                        <% } %>
+                        <% if (superhero.appearance.race) { %>
+                            <p><strong style="color:#00eaff;">Race:</strong> <%= superhero.appearance.race %></p>
+                        <% } %>
+                        <% if (superhero.appearance.height && superhero.appearance.height[0]) { %>
+                            <p><strong style="color:#00eaff;">Height:</strong> <%= superhero.appearance.height[0] %></p>
+                        <% } %>
+                        <% if (superhero.appearance.weight && superhero.appearance.weight[0]) { %>
+                            <p><strong style="color:#00eaff;">Weight:</strong> <%= superhero.appearance.weight[0] %></p>
+                        <% } %>
+                        <% if (superhero.appearance.eyeColor) { %>
+                            <p><strong style="color:#00eaff;">Eye Color:</strong> <%= superhero.appearance.eyeColor %></p>
+                        <% } %>
+                        <% if (superhero.appearance.hairColor) { %>
+                            <p><strong style="color:#00eaff;">Hair Color:</strong> <%= superhero.appearance.hairColor %></p>
+                        <% } %>
+                    </div>
+                </div>
+            <% } %>
+
+            <% if (superhero.work) { %>
+                <div class="card mb-4" style="background:#232a34; border:1px solid #00eaff33;">
+                    <div class="card-header" style="background:#232a34; border-bottom:1px solid #00eaff22;">
+                        <h2 class="h5 mb-0" style="color:#00eaff;">Work</h2>
+                    </div>
+                    <div class="card-body">
+                        <% if (superhero.work.occupation) { %>
+                            <p><strong style="color:#00eaff;">Occupation:</strong> <%= superhero.work.occupation %></p>
+                        <% } %>
+                        <% if (superhero.work.base) { %>
+                            <p><strong style="color:#00eaff;">Base:</strong> <%= superhero.work.base %></p>
+                        <% } %>
+                    </div>
+                </div>
+            <% } %>
+
+            <% if (superhero.connections) { %>
+                <div class="card mb-4" style="background:#232a34; border:1px solid #00eaff33;">
+                    <div class="card-header" style="background:#232a34; border-bottom:1px solid #00eaff22;">
+                        <h2 class="h5 mb-0" style="color:#00eaff;">Connections</h2>
+                    </div>
+                    <div class="card-body">
+                        <% if (superhero.connections.groupAffiliation) { %>
+                            <p><strong style="color:#00eaff;">Group Affiliation:</strong> <%= superhero.connections.groupAffiliation %></p>
+                        <% } %>
+                        <% if (superhero.connections.relatives) { %>
+                            <p><strong style="color:#00eaff;">Relatives:</strong> <%= superhero.connections.relatives %></p>
+                        <% } %>
+                    </div>
+                </div>
+            <% } %>
+        </div>
+    </div>
+</div> 

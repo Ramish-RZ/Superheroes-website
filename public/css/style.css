@@ -1,0 +1,196 @@
+/* Dark Futuristic Theme with Neon Blue/Cyan Accents */
+body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background: linear-gradient(135deg, #181c24 0%, #232a34 100%);
+    color: #e0e6ed;
+    font-family: 'Segoe UI', 'Roboto', 'Arial', sans-serif;
+}
+
+main {
+    flex: 1;
+}
+
+.navbar {
+    background: #181c24 !important;
+    border-bottom: 2px solid #00eaff33;
+    box-shadow: 0 2px 8px #00eaff11;
+}
+
+.navbar-brand, .nav-link, .navbar-nav .nav-link.active {
+    color: #00eaff !important;
+    font-weight: 600;
+    letter-spacing: 1px;
+    transition: color 0.2s;
+}
+
+.nav-link:hover, .navbar-brand:hover {
+    color: #00fff7 !important;
+    text-shadow: 0 0 8px #00eaff99;
+}
+
+.card {
+    background: #232a34;
+    border: 1px solid #00eaff22;
+    border-radius: 16px;
+    box-shadow: 0 4px 24px #00eaff11;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-6px) scale(1.03);
+    box-shadow: 0 8px 32px #00eaff33;
+    border-color: #00eaff66;
+}
+
+.card-img-top {
+    height: 220px;
+    object-fit: cover;
+    border-top-left-radius: 16px;
+    border-top-right-radius: 16px;
+    background: #181c24;
+}
+
+.btn-primary {
+    background: linear-gradient(90deg, #00eaff 0%, #0078ff 100%);
+    border: none;
+    color: #181c24;
+    font-weight: 600;
+    box-shadow: 0 2px 8px #00eaff44;
+    transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+}
+
+.btn-primary:hover, .btn-primary:focus {
+    background: linear-gradient(90deg, #00fff7 0%, #00eaff 100%);
+    color: #232a34;
+    box-shadow: 0 4px 16px #00eaff99;
+}
+
+.form-control {
+    background: #232a34;
+    border: 1px solid #00eaff33;
+    color: #e0e6ed;
+    border-radius: 8px;
+    transition: border 0.2s, box-shadow 0.2s;
+}
+
+.form-control:focus {
+    border-color: #00eaff;
+    box-shadow: 0 0 0 0.2rem #00eaff44;
+    background: #232a34;
+    color: #fff;
+}
+
+.alert {
+    border-radius: 8px;
+    background: #232a34;
+    border: 1px solid #00eaff44;
+    color: #00eaff;
+    font-weight: 500;
+    box-shadow: 0 2px 8px #00eaff22;
+}
+
+/* Footer styles for dark neon theme */
+.footer {
+    background: #181c24 !important;
+    color: #00eaffcc !important;
+    border-top: 2px solid #00eaff33;
+    box-shadow: 0 -2px 8px #00eaff11;
+    text-align: center;
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    z-index: 100;
+    padding: 1rem 0;
+}
+
+.progress {
+    background: #232a34;
+    border-radius: 8px;
+    height: 24px;
+    margin-bottom: 8px;
+}
+
+.progress-bar {
+    background: linear-gradient(90deg, #00eaff 0%, #0078ff 100%);
+    color: #181c24;
+    font-weight: 600;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px #00eaff44;
+    transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+::-webkit-scrollbar {
+    width: 10px;
+    background: #181c24;
+}
+::-webkit-scrollbar-thumb {
+    background: #00eaff33;
+    border-radius: 8px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .card-img-top {
+        height: 140px;
+    }
+    .navbar-brand {
+        font-size: 1.1rem;
+    }
+}
+
+/* Ensure all text inside cards is readable */
+.card, .card-body, .card p, .card li, .card span, .card strong, .card-header, .card-title, .card-text {
+    color: #e0e6ed !important;
+}
+
+/* Make sure links inside cards are also visible */
+.card a {
+    color: #00eaff;
+}
+
+/* Optionally, make the label text (like Biography, Appearance, etc.) a bit brighter */
+.card-header, .card-title, .card h2, .card h5, .card strong {
+    color: #00eaff !important;
+}
+
+/* Neon progress bar styles */
+.neon-progress {
+    background: #181c24;
+    border-radius: 8px;
+    height: 28px;
+    margin-bottom: 8px;
+    box-shadow: 0 0 8px #00eaff44;
+}
+.neon-progress .progress-bar {
+    height: 28px;
+    font-size: 1rem;
+    font-weight: 600;
+    border-radius: 8px;
+    box-shadow: 0 0 16px #00eaff99, 0 0 32px #00eaff44;
+    transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    color: #181c24;
+    text-shadow: 0 0 8px #00eaff99;
+}
+
+/* Favorite button styles */
+.btn-outline-primary {
+    border: 2px solid #00eaff;
+    color: #00eaff;
+    background: transparent;
+    transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+    box-shadow: 0 0 8px #00eaff44;
+}
+.btn-outline-primary:hover, .btn-outline-primary:focus {
+    background: #00eaff;
+    color: #181c24;
+    box-shadow: 0 0 16px #00eaff99;
+}
+
+/* Bootstrap icon for star (if using Bootstrap Icons CDN) */
+.bi-star {
+    font-size: 1.2rem;
+    vertical-align: -0.125em;
+} 
