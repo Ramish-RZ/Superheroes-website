@@ -447,4 +447,164 @@ sudo named-checkzone 1.168.192.in-addr.arpa /etc/bind/zones/192.168.1.rev
 
 ---
 
+**Your DNS server is now configured and ready to serve your superhero website deployment!**
+
+---
+
+## 15. Exam DNS Configuration (superhelt.ALIAS.ikt-fag.no)
+
+### 15.1 Update Zone Configuration for Exam Domain
+```bash
+sudo nano /etc/bind/named.conf.local
+```
+
+Add the exam domain zone:
+```conf
+// Include zone files
+include "/etc/bind/zones.rfc1918";
+
+// Forward zone for superhero.local (existing)
+zone "superhero.local" {
+        type master;
+        file "/etc/bind/zones/superhero.local.db";
+        allow-transfer { none; };
+};
+
+// Forward zone for exam domain (NEW)
+zone "ALIAS.ikt-fag.no" {
+        type master;
+        file "/etc/bind/zones/ALIAS.ikt-fag.no.db";
+        allow-transfer { none; };
+};
+
+// Reverse zone for 192.168.1.x network (existing)
+zone "1.168.192.in-addr.arpa" {
+        type master;
+        file "/etc/bind/zones/192.168.1.rev";
+        allow-transfer { none; };
+};
+```
+
+### 15.2 Create Exam Domain Zone File
+```bash
+sudo nano /etc/bind/zones/ALIAS.ikt-fag.no.db
+```
+
+Add the following content (replace ALIAS with your assigned alias):
+```conf
+; Zone file for ALIAS.ikt-fag.no
+$TTL    86400
+@       IN      SOA     ns1.ALIAS.ikt-fag.no. admin.ALIAS.ikt-fag.no. (
+                        2024121801      ; Serial (YYYYMMDDNN)
+                        3600            ; Refresh
+                        1800            ; Retry
+                        1209600         ; Expire
+                        86400 )         ; Negative Cache TTL
+
+; Name servers
+@       IN      NS      ns1.ALIAS.ikt-fag.no.
+
+; A records
+ns1     IN      A       10.12.83.10    ; Your DNS server IP
+superhelt IN    A       10.12.83.10    ; Your web server IP
+www     IN      A       10.12.83.10    ; Your web server IP
+
+; CNAME records
+ALIAS.ikt-fag.no. IN    CNAME   www.ALIAS.ikt-fag.no.
+```
+
+### 15.3 Test Exam Domain Configuration
+```bash
+# Test zone file syntax
+sudo named-checkzone ALIAS.ikt-fag.no /etc/bind/zones/ALIAS.ikt-fag.no.db
+
+# Test configuration
+sudo named-checkconf /etc/bind/named.conf
+
+# Reload BIND9
+sudo systemctl reload bind9
+```
+
+### 15.4 Test Exam Domain Resolution
+```bash
+# Test from DNS server
+nslookup superhelt.ALIAS.ikt-fag.no 127.0.0.1
+nslookup www.ALIAS.ikt-fag.no 127.0.0.1
+
+# Test from web server
+nslookup superhelt.ALIAS.ikt-fag.no 192.168.1.12
+```
+
+### 15.5 Update Web Server Configuration
+Update your web server's Nginx configuration to respond to the exam domain:
+
+```bash
+sudo nano /etc/nginx/sites-available/superhero-app
+```
+
+Add the exam domain:
+```nginx
+server {
+    listen 80;
+    server_name superhelt.ALIAS.ikt-fag.no www.superhelt.ALIAS.ikt-fag.no;
+    
+    location / {
+        proxy_pass http://localhost:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_cache_bypass $http_upgrade;
+    }
+}
+```
+
+Reload Nginx:
+```bash
+sudo nginx -t
+sudo systemctl reload nginx
+```
+
+---
+
+## 16. Exam Requirements Summary
+
+### 16.1 What You Must Demonstrate:
+1. **DNS Name Setup**: `superhelt.ALIAS.ikt-fag.no` must resolve to your web server
+2. **Domain Forwarding**: The domain `[alias].ikt-fag.no` forwards to `10.12.[your pool].10`
+3. **DNS Server Explanation**: Be prepared to explain how your BIND9 DNS server works
+
+### 16.2 Key Points for Oral Examination:
+- **BIND9 Configuration**: Explain the zone files, forward/reverse zones
+- **DNS Resolution Process**: How queries are resolved locally vs forwarded
+- **Network Architecture**: How DNS integrates with your web and database servers
+- **Security**: Zone transfer restrictions, query logging
+- **Troubleshooting**: How to diagnose DNS issues
+
+### 16.3 Testing Your Setup:
+```bash
+# Test local DNS resolution
+nslookup superhelt.ALIAS.ikt-fag.no 192.168.1.12
+
+# Test from external network (if accessible)
+nslookup superhelt.ALIAS.ikt-fag.no 8.8.8.8
+
+# Test web access
+curl -I http://superhelt.ALIAS.ikt-fag.no
+```
+
+---
+
+## Notes
+- This DNS server provides internal name resolution for your VMs
+- External DNS queries are forwarded to Google DNS (8.8.8.8)
+- Zone files are configured for the `superhero.local` domain
+- All VMs should use this DNS server as their primary nameserver
+- Regular backups of zone files are recommended
+
+---
+
 **Your DNS server is now configured and ready to serve your superhero website deployment!** 
