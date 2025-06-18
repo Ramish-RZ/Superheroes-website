@@ -150,25 +150,62 @@ exports.searchSuperheroes = async (req, res) => {
 
         // If no results in database, search API
         if (superheroes.length === 0) {
-            const apiResults = await superheroApi.searchSuperheroes(q);
-            
-            // Save to database
-            superheroes = await Promise.all(
-                apiResults.map(async (hero) => {
-                    const superhero = new Superhero({
-                        apiId: hero.id,
-                        name: hero.name,
-                        image: hero.image.url,
-                        powerstats: hero.powerstats,
-                        biography: hero.biography,
-                        appearance: hero.appearance,
-                        work: hero.work,
-                        connections: hero.connections
-                    });
-                    return superhero.save();
-                })
-            );
+            try {
+                const apiResults = await superheroApi.searchSuperheroes(q);
+                
+                // Save to database
+                superheroes = await Promise.all(
+                    apiResults.map(async (hero) => {
+                        const superhero = new Superhero({
+                            apiId: hero.id,
+                            name: hero.name,
+                            image: hero.image.url,
+                            powerstats: hero.powerstats,
+                            biography: hero.biography,
+                            appearance: hero.appearance,
+                            work: hero.work,
+                            connections: hero.connections
+                        });
+                        return superhero.save();
+                    })
+                );
+            } catch (apiError) {
+                console.error('Error fetching from API:', apiError);
+                return res.render('index', {
+                    title: 'Search Results',
+                    superheroes: [],
+                    query: q,
+                    pagination: { currentPage: 1, totalPages: 1 },
+                    userFavoriteIds: [],
+                    topFavorites: [],
+                    messages: { error: 'Error searching superheroes. Please try again.' }
+                });
+            }
         }
+
+        // Get user's favorite heroIds for quick lookup
+        let userFavoriteIds = [];
+        if (req.session.user) {
+            const user = await User.findById(req.session.user.id);
+            if (user && user.favorites) {
+                userFavoriteIds = user.favorites.map(f => f.heroId);
+            }
+        }
+
+        // Get top favorites for the view
+        const topFavoritesAgg = await User.aggregate([
+            { $unwind: "$favorites" },
+            { $group: { _id: "$favorites.heroId", count: { $sum: 1 } } },
+            { $sort: { count: -1 } },
+            { $limit: 10 }
+        ]);
+        const topFavoriteIds = topFavoritesAgg.map(f => f._id);
+        const topFavoriteHeroes = await Superhero.find({ apiId: { $in: topFavoriteIds } });
+        const topFavorites = topFavoriteIds.map(id => topFavoriteHeroes.find(h => h.apiId === id)).filter(Boolean);
+        const topFavoritesWithCount = topFavorites.map((hero, i) => ({ 
+            hero, 
+            count: topFavoritesAgg.find(f => f._id === hero.apiId)?.count || 0 
+        }));
 
         res.render('index', {
             title: 'Search Results',
@@ -177,7 +214,9 @@ exports.searchSuperheroes = async (req, res) => {
             pagination: {
                 currentPage: 1,
                 totalPages: 1
-            }
+            },
+            userFavoriteIds,
+            topFavorites: topFavoritesWithCount
         });
     } catch (error) {
         console.error('Error in searchSuperheroes:', error);
@@ -185,6 +224,9 @@ exports.searchSuperheroes = async (req, res) => {
             title: 'Search Results',
             superheroes: [],
             query: req.query.q,
+            pagination: { currentPage: 1, totalPages: 1 },
+            userFavoriteIds: [],
+            topFavorites: [],
             messages: { error: 'Error searching superheroes' }
         });
     }
