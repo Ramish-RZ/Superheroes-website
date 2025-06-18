@@ -14,7 +14,7 @@ router.get('/favorites', superheroController.getFavorites);
 // Get single superhero
 router.get('/:id', superheroController.getSuperhero);
 
-// Favorite superhero
+// Favorite superhero (from home page or detail)
 router.post('/:id/favorite', superheroController.favoriteSuperhero);
 
 module.exports = router; 

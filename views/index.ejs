@@ -84,6 +84,26 @@
             </div>
         </div>
 
+        <!-- Top 10 Most Favorited Superheroes -->
+        <% if (topFavorites && topFavorites.length > 0) { %>
+        <div class="row mb-4">
+            <div class="col">
+                <h2 style="color:#00eaff; font-size:1.3rem; font-weight:600; letter-spacing:1px;">Top 10 Most Favorited Superheroes</h2>
+                <div class="d-flex flex-wrap gap-3">
+                    <% topFavorites.forEach(({ hero, count }) => { %>
+                        <div class="card" style="width: 10rem; background:#232a34; border:1px solid #00eaff33;">
+                            <img src="<%= hero.image %>" class="card-img-top" alt="<%= hero.name %>">
+                            <div class="card-body p-2">
+                                <h6 class="card-title mb-1" style="color:#00eaff; font-weight:600; font-size:1rem; text-shadow:0 0 8px #00eaff55;"><%= hero.name %></h6>
+                                <span style="color:#ffae00; font-size:0.9rem;">⭐ <%= count %> favorites</span>
+                            </div>
+                        </div>
+                    <% }); %>
+                </div>
+            </div>
+        </div>
+        <% } %>
+
         <!-- Superhero Cards Grid -->
         <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
             <% if (locals.superheroes && superheroes.length > 0) { %>
@@ -103,7 +123,16 @@
                                         <span style="color:#00eaff;">Power:</span> <%= hero.powerstats.power || 'N/A' %>
                                     <% } %>
                                 </p>
-                                <a href="/superhero/<%= hero.apiId %>" class="btn btn-primary w-100 mt-2">View Details</a>
+                                <a href="/superhero/<%= hero.apiId %>" class="btn btn-primary w-100 mt-2 mb-2">View Details</a>
+                                <% if (user) { %>
+                                    <form action="/superhero/<%= hero.apiId %>/favorite" method="POST" style="display:inline;">
+                                        <input type="hidden" name="fromHome" value="1">
+                                        <button type="submit" class="btn btn-outline-primary w-100">
+                                            <i class="bi bi-star<%= userFavoriteIds && userFavoriteIds.includes(hero.apiId) ? '-fill' : '' %>"></i>
+                                            <%= userFavoriteIds && userFavoriteIds.includes(hero.apiId) ? 'Unfavorite' : 'Favorite' %>
+                                        </button>
+                                    </form>
+                                <% } %>
                             </div>
                         </div>
                     </div>

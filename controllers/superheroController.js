@@ -19,8 +19,6 @@ exports.getHome = async (req, res) => {
         if (superheroes.length === 0) {
             try {
                 const apiSuperheroes = await superheroApi.getRandomSuperheroes(limit);
-                
-                // Save to database
                 superheroes = await Promise.all(
                     apiSuperheroes.map(async (hero) => {
                         const superhero = new Superhero({
@@ -50,6 +48,28 @@ exports.getHome = async (req, res) => {
         const total = await Superhero.countDocuments();
         const totalPages = Math.ceil(total / limit);
 
+        // Top 10 most favorited superheroes
+        const topFavoritesAgg = await User.aggregate([
+            { $unwind: "$favorites" },
+            { $group: { _id: "$favorites.heroId", count: { $sum: 1 } } },
+            { $sort: { count: -1 } },
+            { $limit: 10 }
+        ]);
+        const topFavoriteIds = topFavoritesAgg.map(f => f._id);
+        const topFavoriteHeroes = await Superhero.find({ apiId: { $in: topFavoriteIds } });
+        // Sort by count
+        const topFavorites = topFavoriteIds.map(id => topFavoriteHeroes.find(h => h.apiId === id));
+        const topFavoritesWithCount = topFavorites.map((hero, i) => ({ hero, count: topFavoritesAgg[i]?.count || 0 }));
+
+        // Get user's favorite heroIds for quick lookup
+        let userFavoriteIds = [];
+        if (req.session.user) {
+            const user = await User.findById(req.session.user.id);
+            if (user && user.favorites) {
+                userFavoriteIds = user.favorites.map(f => f.heroId);
+            }
+        }
+
         res.render('index', {
             title: 'Home',
             superheroes,
@@ -58,7 +78,9 @@ exports.getHome = async (req, res) => {
                 totalPages,
                 hasNext: page < totalPages,
                 hasPrev: page > 1
-            }
+            },
+            userFavoriteIds,
+            topFavorites: topFavoritesWithCount
         });
     } catch (error) {
         console.error('Error in getHome:', error);
@@ -165,7 +187,7 @@ exports.searchSuperheroes = async (req, res) => {
     }
 };
 
-// Favorite superhero
+// Favorite/unfavorite superhero (toggle)
 exports.favoriteSuperhero = async (req, res) => {
     if (!req.session.user) {
         return res.status(401).send('Please log in to favorite superheroes');
@@ -173,14 +195,12 @@ exports.favoriteSuperhero = async (req, res) => {
     try {
         const userId = req.session.user.id;
         const heroId = req.params.id;
-        
-        console.log('Favoriting superhero:', { userId, heroId });
-        
+        let { reason } = req.body;
+        if (typeof reason !== 'string') reason = '';
+
         // Get superhero info first
         let superhero = await Superhero.findOne({ apiId: heroId });
         if (!superhero) {
-            console.log('Superhero not in database, fetching from API...');
-            // If not in database, fetch from API
             const apiHero = await superheroApi.getSuperhero(heroId);
             superhero = new Superhero({
                 apiId: apiHero.id,
@@ -193,87 +213,72 @@ exports.favoriteSuperhero = async (req, res) => {
                 connections: apiHero.connections
             });
             await superhero.save();
-            console.log('Superhero saved to database:', superhero.name);
         }
-        
+
         // Get user and update favorites
         const user = await User.findById(userId);
-        if (!user) {
-            console.error('User not found:', userId);
-            throw new Error('User not found');
-        }
-        
-        console.log('User found:', user.username);
-        console.log('Current favorites:', user.favorites);
-        
-        // Initialize favorites array if it doesn't exist
-        if (!user.favorites) {
-            user.favorites = [];
-        }
-        
-        // Check if already favorited
-        const isAlreadyFavorited = user.favorites.includes(heroId);
-        console.log('Is already favorited:', isAlreadyFavorited);
-        
-        if (isAlreadyFavorited) {
+        if (!user) throw new Error('User not found');
+        if (!user.favorites) user.favorites = [];
+        const favIndex = user.favorites.findIndex(f => f.heroId === heroId);
+        if (favIndex !== -1) {
             // Remove from favorites
-            console.log('Removing from favorites...');
-            user.favorites = user.favorites.filter(id => id !== heroId);
+            user.favorites.splice(favIndex, 1);
             await user.save();
             req.session.success = `${superhero.name} removed from favorites!`;
-            console.log('Removed from favorites successfully');
         } else {
             // Add to favorites
-            console.log('Adding to favorites...');
-            user.favorites.push(heroId);
+            user.favorites.push({ heroId, reason });
             await user.save();
             req.session.success = `${superhero.name} added to favorites!`;
-            console.log('Added to favorites successfully');
         }
-        
-        res.redirect(`/superhero/${heroId}`);
+        res.redirect(req.body.fromProfile ? '/profile' : req.body.fromHome ? '/' : `/superhero/${heroId}`);
     } catch (error) {
         console.error('Error favoriting superhero:', error);
-        console.error('Error stack:', error.stack);
         req.session.error = 'Error updating favorites. Please try again.';
-        res.redirect(`/superhero/${req.params.id}`);
+        res.redirect('back');
     }
 };
 
-// Get user's favorite superheroes
-exports.getFavorites = async (req, res) => {
-    if (!req.session.user) {
-        return res.redirect('/auth/login');
+// Update reason for a favorite
+exports.updateFavoriteReason = async (req, res) => {
+    if (!req.session.user) return res.status(401).send('Please log in');
+    try {
+        const userId = req.session.user.id;
+        const { heroId, reason } = req.body;
+        const user = await User.findById(userId);
+        if (!user) throw new Error('User not found');
+        const fav = user.favorites.find(f => f.heroId === heroId);
+        if (fav) {
+            fav.reason = reason;
+            await user.save();
+            req.session.success = 'Reason updated!';
+        }
+        res.redirect('/profile');
+    } catch (error) {
+        console.error('Error updating reason:', error);
+        req.session.error = 'Error updating reason.';
+        res.redirect('/profile');
     }
-    
+};
+
+// Get user's favorite superheroes (for profile)
+exports.getProfile = async (req, res) => {
+    if (!req.session.user) return res.redirect('/auth/login');
     try {
         const userId = req.session.user.id;
         const user = await User.findById(userId);
-        
-        if (!user || !user.favorites || user.favorites.length === 0) {
-            return res.render('favorites', {
-                title: 'My Favorites',
-                superheroes: [],
-                message: 'You haven\'t favorited any superheroes yet!'
-            });
+        let favoritesDetailed = [];
+        if (user && user.favorites && user.favorites.length > 0) {
+            const heroIds = user.favorites.map(f => f.heroId);
+            const heroes = await Superhero.find({ apiId: { $in: heroIds } });
+            favoritesDetailed = user.favorites.map(fav => {
+                const hero = heroes.find(h => h.apiId === fav.heroId);
+                return hero ? { ...hero.toObject(), reason: fav.reason } : null;
+            }).filter(Boolean);
         }
-        
-        // Get superhero details for each favorite
-        const favoriteSuperheroes = await Superhero.find({
-            apiId: { $in: user.favorites }
-        });
-        
-        res.render('favorites', {
-            title: 'My Favorites',
-            superheroes: favoriteSuperheroes,
-            message: null
-        });
+        res.render('profile', { user, favorites: favoritesDetailed });
     } catch (error) {
-        console.error('Error getting favorites:', error);
-        res.render('favorites', {
-            title: 'My Favorites',
-            superheroes: [],
-            message: 'Error loading favorites. Please try again.'
-        });
+        console.error('Error loading profile:', error);
+        res.render('profile', { user: req.session.user, favorites: [], messages: { error: 'Error loading profile.' } });
     }
 }; 

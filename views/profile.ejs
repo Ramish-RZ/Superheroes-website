@@ -83,9 +83,47 @@
                                 <strong style="color:#00eaff;">Email:</strong> <%= user.email %>
                             </li>
                         </ul>
-                        <div class="d-grid">
+                        <div class="d-grid mb-4">
                             <a href="/auth/logout" class="btn btn-primary">Logout</a>
                         </div>
+                        <h4 class="mb-3" style="color:#00eaff;">My Favorite Superheroes</h4>
+                        <% if (favorites && favorites.length > 0) { %>
+                            <% favorites.forEach(fav => { %>
+                                <div class="card mb-3" style="background:#232a34; border:1px solid #00eaff33;">
+                                    <div class="row g-0">
+                                        <div class="col-4">
+                                            <img src="<%= fav.image %>" class="img-fluid rounded-start" alt="<%= fav.name %>">
+                                        </div>
+                                        <div class="col-8">
+                                            <div class="card-body p-2">
+                                                <h5 class="card-title mb-1" style="color:#00eaff; font-weight:600; letter-spacing:1px; text-shadow:0 0 8px #00eaff55;">
+                                                    <%= fav.name %>
+                                                </h5>
+                                                <p class="mb-1" style="color:#b0c4d4; font-size:0.95rem;">
+                                                    <% if (fav.biography && fav.biography.publisher) { %>
+                                                        <span style="color:#00eaff;">Publisher:</span> <%= fav.biography.publisher %><br>
+                                                    <% } %>
+                                                    <% if (fav.powerstats) { %>
+                                                        <span style="color:#00eaff;">Power:</span> <%= fav.powerstats.power || 'N/A' %>
+                                                    <% } %>
+                                                </p>
+                                                <form action="/profile/favorite/<%= fav.apiId %>" method="POST" style="display:inline;">
+                                                    <input type="hidden" name="fromProfile" value="1">
+                                                    <button type="submit" class="btn btn-outline-danger btn-sm mb-2">Remove</button>
+                                                </form>
+                                                <form action="/profile/favorite/reason" method="POST" class="d-flex align-items-center gap-2">
+                                                    <input type="hidden" name="heroId" value="<%= fav.apiId %>">
+                                                    <input type="text" name="reason" value="<%= fav.reason || '' %>" class="form-control form-control-sm" placeholder="Why is this your favorite?">
+                                                    <button type="submit" class="btn btn-outline-primary btn-sm">Save</button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            <% }); %>
+                        <% } else { %>
+                            <p style="color:#b0c4d4;">You haven't favorited any superheroes yet!</p>
+                        <% } %>
                     </div>
                 </div>
             </div>

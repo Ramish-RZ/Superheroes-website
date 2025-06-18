@@ -19,7 +19,10 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    favorites: [{ type: String }],
+    favorites: [{
+        heroId: String,
+        reason: { type: String, default: '' }
+    }],
     createdAt: {
         type: Date,
         default: Date.now
