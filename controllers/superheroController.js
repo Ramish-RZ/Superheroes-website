@@ -281,4 +281,49 @@ exports.getProfile = async (req, res) => {
         console.error('Error loading profile:', error);
         res.render('profile', { user: req.session.user, favorites: [], messages: { error: 'Error loading profile.' } });
     }
+};
+
+// Get user's favorite superheroes (for favorites page)
+exports.getFavorites = async (req, res) => {
+    if (!req.session.user) {
+        return res.redirect('/auth/login');
+    }
+    
+    try {
+        const userId = req.session.user.id;
+        const user = await User.findById(userId);
+        
+        if (!user || !user.favorites || user.favorites.length === 0) {
+            return res.render('favorites', {
+                title: 'My Favorites',
+                superheroes: [],
+                message: 'You haven\'t favorited any superheroes yet!'
+            });
+        }
+        
+        // Get superhero details for each favorite
+        const heroIds = user.favorites.map(f => f.heroId);
+        const favoriteSuperheroes = await Superhero.find({
+            apiId: { $in: heroIds }
+        });
+        
+        // Add reasons to the superhero objects
+        const favoritesWithReasons = favoriteSuperheroes.map(hero => {
+            const fav = user.favorites.find(f => f.heroId === hero.apiId);
+            return { ...hero.toObject(), reason: fav ? fav.reason : '' };
+        });
+        
+        res.render('favorites', {
+            title: 'My Favorites',
+            superheroes: favoritesWithReasons,
+            message: null
+        });
+    } catch (error) {
+        console.error('Error getting favorites:', error);
+        res.render('favorites', {
+            title: 'My Favorites',
+            superheroes: [],
+            message: 'Error loading favorites. Please try again.'
+        });
+    }
 }; 
