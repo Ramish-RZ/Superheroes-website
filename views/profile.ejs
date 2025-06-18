@@ -1,22 +1,112 @@
-<%- include('layout', { title: 'Profile' }) %>
-
-<div class="row justify-content-center">
-    <div class="col-md-6 col-lg-5">
-        <div class="card shadow-lg mt-5" style="background:#232a34; border:1px solid #00eaff44;">
-            <div class="card-body">
-                <h2 class="card-title text-center mb-4" style="color:#00eaff; text-shadow:0 0 12px #00eaff99, 0 0 32px #00eaff22; font-weight:700; letter-spacing:2px;">Profile</h2>
-                <ul class="list-group list-group-flush mb-4">
-                    <li class="list-group-item" style="background:#232a34; color:#e0e6ed; border:none;">
-                        <strong style="color:#00eaff;">Username:</strong> <%= user.username %>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile | Superhero Website</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
+    <style>
+        body { background: #181c24; color: #e0e6ed; }
+        .navbar-brand {
+            text-shadow: 0 0 8px #00eaff, 0 0 16px #00eaff44;
+            font-size: 1.5rem;
+            letter-spacing: 2px;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/">Superhero Website</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">Home</a>
                     </li>
-                    <li class="list-group-item" style="background:#232a34; color:#e0e6ed; border:none;">
-                        <strong style="color:#00eaff;">Email:</strong> <%= user.email %>
-                    </li>
+                    <% if (locals.user) { %>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/superhero/favorites">
+                                <i class="bi bi-star-fill" style="color:#ffae00;"></i> Favorites
+                            </a>
+                        </li>
+                    <% } %>
                 </ul>
-                <div class="d-grid">
-                    <a href="/auth/logout" class="btn btn-primary">Logout</a>
+                <ul class="navbar-nav">
+                    <% if (locals.user) { %>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/profile">Profile</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/auth/logout">Logout</a>
+                        </li>
+                    <% } else { %>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/auth/login">Login</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/auth/register">Register</a>
+                        </li>
+                    <% } %>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container my-4">
+        <% if (locals.messages && messages.error) { %>
+            <div class="alert alert-danger">
+                <%= messages.error %>
+            </div>
+        <% } %>
+        <% if (locals.messages && messages.success) { %>
+            <div class="alert alert-success">
+                <%= messages.success %>
+            </div>
+        <% } %>
+        
+        <div class="row justify-content-center">
+            <div class="col-md-6 col-lg-5">
+                <div class="card shadow-lg mt-5" style="background:#232a34; border:1px solid #00eaff44;">
+                    <div class="card-body">
+                        <h2 class="card-title text-center mb-4" style="color:#00eaff; text-shadow:0 0 12px #00eaff99, 0 0 32px #00eaff22; font-weight:700; letter-spacing:2px;">Profile</h2>
+                        <ul class="list-group list-group-flush mb-4">
+                            <li class="list-group-item" style="background:#232a34; color:#e0e6ed; border:none;">
+                                <strong style="color:#00eaff;">Username:</strong> <%= user.username %>
+                            </li>
+                            <li class="list-group-item" style="background:#232a34; color:#e0e6ed; border:none;">
+                                <strong style="color:#00eaff;">Email:</strong> <%= user.email %>
+                            </li>
+                        </ul>
+                        <div class="d-grid">
+                            <a href="/auth/logout" class="btn btn-primary">Logout</a>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-</div> 
+    </main>
+
+    <footer class="footer mt-auto py-3" style="background:#181c24; color:#00eaffcc; border-top:2px solid #00eaff33; box-shadow:0 -2px 8px #00eaff11; text-align:center; position:fixed; left:0; bottom:0; width:100%; z-index:100;">
+        <div class="container">
+            <span>&copy; <%= new Date().getFullYear() %> Superhero Website</span>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Set progress bar widths
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.progress-bar[data-width]').forEach(function(bar) {
+                const width = bar.getAttribute('data-width');
+                bar.style.width = width + '%';
+            });
+        });
+    </script>
+</body>
+</html> 
