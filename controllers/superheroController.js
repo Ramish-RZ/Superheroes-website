@@ -171,7 +171,7 @@ exports.favoriteSuperhero = async (req, res) => {
         return res.status(401).send('Please log in to favorite superheroes');
     }
     try {
-        const userId = req.session.user._id;
+        const userId = req.session.user.id;
         const heroId = req.params.id;
         
         console.log('Favoriting superhero:', { userId, heroId });
@@ -247,7 +247,7 @@ exports.getFavorites = async (req, res) => {
     }
     
     try {
-        const userId = req.session.user._id;
+        const userId = req.session.user.id;
         const user = await User.findById(userId);
         
         if (!user || !user.favorites || user.favorites.length === 0) {
