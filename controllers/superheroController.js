@@ -57,9 +57,12 @@ exports.getHome = async (req, res) => {
         ]);
         const topFavoriteIds = topFavoritesAgg.map(f => f._id);
         const topFavoriteHeroes = await Superhero.find({ apiId: { $in: topFavoriteIds } });
-        // Sort by count
-        const topFavorites = topFavoriteIds.map(id => topFavoriteHeroes.find(h => h.apiId === id));
-        const topFavoritesWithCount = topFavorites.map((hero, i) => ({ hero, count: topFavoritesAgg[i]?.count || 0 }));
+        // Sort by count and filter out any undefined heroes
+        const topFavorites = topFavoriteIds.map(id => topFavoriteHeroes.find(h => h.apiId === id)).filter(Boolean);
+        const topFavoritesWithCount = topFavorites.map((hero, i) => ({ 
+            hero, 
+            count: topFavoritesAgg.find(f => f._id === hero.apiId)?.count || 0 
+        }));
 
         // Get user's favorite heroIds for quick lookup
         let userFavoriteIds = [];
