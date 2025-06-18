@@ -8,6 +8,7 @@ exports.getLogin = (req, res) => {
 // Handle login
 exports.postLogin = async (req, res) => {
     try {
+        console.log('Login attempt:', req.body);
         const { email, password } = req.body;
         
         // Find user by email or username
@@ -18,7 +19,10 @@ exports.postLogin = async (req, res) => {
             ]
         });
 
+        console.log('User found:', user ? 'Yes' : 'No');
+
         if (!user) {
+            console.log('No user found with email/username:', email);
             return res.render('auth/login', {
                 title: 'Login',
                 messages: { error: 'Invalid email/username or password' }
@@ -27,7 +31,10 @@ exports.postLogin = async (req, res) => {
 
         // Check password
         const isMatch = await user.comparePassword(password);
+        console.log('Password match:', isMatch);
+        
         if (!isMatch) {
+            console.log('Password does not match for user:', user.username);
             return res.render('auth/login', {
                 title: 'Login',
                 messages: { error: 'Invalid email/username or password' }
@@ -40,6 +47,9 @@ exports.postLogin = async (req, res) => {
             username: user.username,
             email: user.email
         };
+
+        console.log('Session set for user:', user.username);
+        console.log('Session data:', req.session);
 
         res.redirect('/');
     } catch (error) {
@@ -59,10 +69,12 @@ exports.getRegister = (req, res) => {
 // Handle registration
 exports.postRegister = async (req, res) => {
     try {
+        console.log('Registration attempt:', req.body);
         const { username, email, password, confirmPassword } = req.body;
 
         // Validate password match
         if (password !== confirmPassword) {
+            console.log('Passwords do not match');
             return res.render('auth/register', {
                 title: 'Register',
                 messages: { error: 'Passwords do not match' }
@@ -78,6 +90,7 @@ exports.postRegister = async (req, res) => {
         });
 
         if (existingUser) {
+            console.log('User already exists:', existingUser.username);
             return res.render('auth/register', {
                 title: 'Register',
                 messages: { error: 'Username or email already exists' }
@@ -92,6 +105,7 @@ exports.postRegister = async (req, res) => {
         });
 
         await user.save();
+        console.log('New user created:', user.username);
 
         // Set user session
         req.session.user = {
@@ -99,6 +113,9 @@ exports.postRegister = async (req, res) => {
             username: user.username,
             email: user.email
         };
+
+        console.log('Session set for new user:', user.username);
+        console.log('Session data:', req.session);
 
         res.redirect('/');
     } catch (error) {
